@@ -26,7 +26,7 @@ func (p *Promise) execute() {
 }
  
 func (p *Promise) Get() (interface{}, error) {
-   p.isExecuting.Lock() // Chequeamos que se pueda reservar.
-   p.isExecuting.Unlock() // Lo desbloqueamos porque podrían haber muchos Get's
+   p.isExecuting.Lock() // Check is we can reserve it
+   p.isExecuting.Unlock() // Because it may exist too many gets
    return p.responsePointer, p.error
 }
