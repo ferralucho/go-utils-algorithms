@@ -1,4 +1,4 @@
-package amounts
+package immutability
 
 import "errors"
 

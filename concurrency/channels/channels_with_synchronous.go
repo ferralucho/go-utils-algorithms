@@ -1,4 +1,4 @@
-package main
+package channels
 
 import (
 	"fmt"

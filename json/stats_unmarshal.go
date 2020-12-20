@@ -1,8 +1,8 @@
-package main
+package json
 
 import (
-    "encoding/json"
-    "fmt"
+	"encoding/json"
+	"fmt"
 )
 
 const resp = `
@@ -107,71 +107,71 @@ const resp = `
 `
 
 type ItemResponse struct {
-    ID         string               `json:"id"`
-    Statistics map[string]Statistic `json:"statistics"`
-    NextKey    interface{}          `json:"nextKey"`
+	ID         string               `json:"id"`
+	Statistics map[string]Statistic `json:"statistics"`
+	NextKey    interface{}          `json:"nextKey"`
 }
 
 type Statistic struct {
-    Key string `json:"key"`
-    ID string `json:"id"`
-    Statistics struct {
-        Standard struct {
-            Weight struct {
-                StandardDeviation float64 `json:"standardDeviation"`
-                Mean              float64 `json:"mean"`
-            } `json:"weight"`
-            Height struct {
-                StandardDeviation float64 `json:"standardDeviation"`
-                Mean              float64 `json:"mean"`
-            } `json:"height"`
-            Width struct {
-                StandardDeviation float64 `json:"standardDeviation"`
-                Mean              float64 `json:"mean"`
-            } `json:"width"`
-            Length struct {
-                StandardDeviation float64 `json:"standardDeviation"`
-                Mean              float64 `json:"mean"`
-            } `json:"length"`
-            N int `json:"n"`
-        } `json:"standard"`
-        Anomalous struct {
-            Weight struct {
-                StandardDeviation float64 `json:"standardDeviation"`
-                Mean              float64 `json:"mean"`
-            } `json:"weight"`
-            Height struct {
-                StandardDeviation float64 `json:"standardDeviation"`
-                Mean              float64 `json:"mean"`
-            } `json:"height"`
-            Width struct {
-                StandardDeviation float64 `json:"standardDeviation"`
-                Mean              float64 `json:"mean"`
-            } `json:"width"`
-            Length struct {
-                StandardDeviation float64 `json:"standardDeviation"`
-                Mean              float64 `json:"mean"`
-            } `json:"length"`
-            N int `json:"n"`
-        } `json:"anomalous"`
-    } `json:"statistics"`
-    StatsLastUpdate string      `json:"statsLastUpdate"`
-    CategoryID      interface{} `json:"categoryId"`
-    InItem          bool        `json:"inItem"`
+	Key        string `json:"key"`
+	ID         string `json:"id"`
+	Statistics struct {
+		Standard struct {
+			Weight struct {
+				StandardDeviation float64 `json:"standardDeviation"`
+				Mean              float64 `json:"mean"`
+			} `json:"weight"`
+			Height struct {
+				StandardDeviation float64 `json:"standardDeviation"`
+				Mean              float64 `json:"mean"`
+			} `json:"height"`
+			Width struct {
+				StandardDeviation float64 `json:"standardDeviation"`
+				Mean              float64 `json:"mean"`
+			} `json:"width"`
+			Length struct {
+				StandardDeviation float64 `json:"standardDeviation"`
+				Mean              float64 `json:"mean"`
+			} `json:"length"`
+			N int `json:"n"`
+		} `json:"standard"`
+		Anomalous struct {
+			Weight struct {
+				StandardDeviation float64 `json:"standardDeviation"`
+				Mean              float64 `json:"mean"`
+			} `json:"weight"`
+			Height struct {
+				StandardDeviation float64 `json:"standardDeviation"`
+				Mean              float64 `json:"mean"`
+			} `json:"height"`
+			Width struct {
+				StandardDeviation float64 `json:"standardDeviation"`
+				Mean              float64 `json:"mean"`
+			} `json:"width"`
+			Length struct {
+				StandardDeviation float64 `json:"standardDeviation"`
+				Mean              float64 `json:"mean"`
+			} `json:"length"`
+			N int `json:"n"`
+		} `json:"anomalous"`
+	} `json:"statistics"`
+	StatsLastUpdate string      `json:"statsLastUpdate"`
+	CategoryID      interface{} `json:"categoryId"`
+	InItem          bool        `json:"inItem"`
 }
 
 func main() {
-    var ir ItemResponse
-    if err := json.Unmarshal([]byte(resp), &ir); err != nil {
-        panic(err)
-    }
+	var ir ItemResponse
+	if err := json.Unmarshal([]byte(resp), &ir); err != nil {
+		panic(err)
+	}
 
-    stats := make([]Statistic, 0)
-    for k, s := range ir.Statistics {
-        s.Key = k
+	stats := make([]Statistic, 0)
+	for k, s := range ir.Statistics {
+		s.Key = k
 
-        stats = append(stats, s)
-    }
+		stats = append(stats, s)
+	}
 
-    fmt.Println(stats)
+	fmt.Println(stats)
 }
