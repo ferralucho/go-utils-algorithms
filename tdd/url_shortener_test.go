@@ -1,4 +1,4 @@
-package tdd
+package main
 
 import (
 	"errors"

@@ -1,4 +1,4 @@
-package workers
+package main
 
 // This is an example of a resilient worker program written in Go.
 //

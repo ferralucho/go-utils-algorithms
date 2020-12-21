@@ -1,4 +1,4 @@
-package promises
+package main
  
 import (
    "testing"

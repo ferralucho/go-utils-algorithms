@@ -1,4 +1,4 @@
-package deferpanic
+package main
 
 import (
 	"fmt"
