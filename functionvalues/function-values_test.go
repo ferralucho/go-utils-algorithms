@@ -4,6 +4,7 @@ import (
 	"testing"
 )
 
+//TODO complete test
 func Test_compute(t *testing.T) {
 
 	type args struct {
