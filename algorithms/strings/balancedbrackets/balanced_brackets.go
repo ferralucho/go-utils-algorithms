@@ -31,6 +31,7 @@ var matchPairs = map[rune]rune{
 	']': '[',
 }
 
+//IsBalancedPairs check if pairs are balanced
 func IsBalancedPairs(s string) bool {
 	if s == "" {
 		return true
