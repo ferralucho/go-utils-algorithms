@@ -22,7 +22,6 @@ func TestIsBalancedPairs(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			t.Log(tt.name)
 			if got := IsBalancedPairs(tt.args.s); got != tt.want {
 				t.Errorf("IsBalancedPairs() = %v, want %v", got, tt.want)
 			}
