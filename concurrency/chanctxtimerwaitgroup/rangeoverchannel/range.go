@@ -7,14 +7,14 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 
 	"golang.org/x/sync/errgroup"
 )
 
 /*
-This shows how to use a timer when waiting to read off a channel where the writer to the channel is slow.
-We may want to abort reading off a channel if it takes too long.
+This ranges over a channel. This means we don't need to explicitly check the ok variable returned
+from the channel for when the channel is closed. We can't use timers though, and we also need to remember
+to use the default case otherwise we would block on ctx.done().
 */
 
 func main() {
@@ -49,7 +49,6 @@ func main() {
 				break
 			}
 			lines <- scanner.Text()
-			time.Sleep(time.Second)
 
 			select {
 			case <-ctx.Done():
@@ -66,21 +65,16 @@ func main() {
 	})
 
 	eg.Go(func() error {
-		for {
+		for l := range lines {
 			select {
 			case <-ctx.Done():
 				fmt.Println("Sender: Context closed")
 				return ctx.Err()
-			case <-time.NewTimer(time.Millisecond * 500).C:
-				fmt.Println("Sender: Write to channel is taking sometime")
-			case l, ok := <-lines:
-				if !ok {
-					fmt.Printf("Sender: Channel closed\n", l)
-					return nil
-				}
+			default:
 				fmt.Printf("Sender: Sending %s to remote database\n", l)
 			}
 		}
+		return nil
 	})
 
 	err = eg.Wait()
