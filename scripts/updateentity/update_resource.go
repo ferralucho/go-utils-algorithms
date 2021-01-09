@@ -31,7 +31,7 @@ func updateResource(record *Record) error {
 	record.UpdateDescription = fmt.Sprintf("Executing update %s", record.ResourceID)
 
 	client := &http.Client{}
-	url := fmt.Sprintf("https://%s/credits/resource/%s", cName, record.ResourceID)
+	url := fmt.Sprintf("https://%s/store/resource/%s", cName, record.ResourceID)
 
 	bodyMap := make(map[string]interface{})
 
@@ -52,11 +52,11 @@ func updateResource(record *Record) error {
 
 	if resp.StatusCode == 200 {
 		record.UpdateSuccess = true
-		record.UpdateDescription = fmt.Sprintf("Update credit line Success - %d - %s", resp.StatusCode, url)
+		record.UpdateDescription = fmt.Sprintf("Update resource Success - %d - %s", resp.StatusCode, url)
 
 	} else {
 		bodyBytes, _ := ioutil.ReadAll(resp.Body)
-		record.UpdateDescription = fmt.Sprintf("Update credit line Error - %d - %s - %s", resp.StatusCode, url, string(bodyBytes))
+		record.UpdateDescription = fmt.Sprintf("Update resource Error - %d - %s - %s", resp.StatusCode, url, string(bodyBytes))
 	}
 	record.UpdateStatusResponse = resp.StatusCode
 
@@ -105,9 +105,9 @@ func parallelRead(reader *csv.Reader, records chan *Record, results chan *Record
 func main() {
 	inputPtr := flag.String("input", "input.csv", "The input file to process")
 	hasHeaderPtr := flag.Bool("hasHeader", true, "Param indicating if the input file has a header or not")
-	routinesPtr := flag.Int("routines", 1, "The amount of routines to use for processing the file")
+	routinesPtr := flag.Int("routines", 10, "The amount of routines to use for processing the file")
 	url_flag := flag.String("url", "localhost:8080", "Indicate the url to perform the put.")
-	token_flag := flag.String("token", "", "Fury token to use.")
+	token_flag := flag.String("token", "", "Token to use.")
 
 	startTime := time.Now()
 
@@ -136,7 +136,6 @@ func main() {
 	writer := csv.NewWriter(outputFile)
 	defer writer.Flush()
 
-	// Create a new reader.
 	reader := csv.NewReader(bufio.NewReader(inputFile))
 	if *hasHeaderPtr {
 		_, err := reader.Read()
@@ -151,12 +150,10 @@ func main() {
 			return
 		}
 	}
-	// END FILE HANDLING
 
 	var successCounter int64
 	var failCounter int64
 
-	// CREACION CHANNELS Y WORKERS
 	records := make(chan *Record, 100)
 	results := make(chan *Record, 100)
 
