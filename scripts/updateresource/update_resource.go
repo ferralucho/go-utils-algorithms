@@ -17,6 +17,19 @@ import (
 	"time"
 )
 
+/*
+Resource massive update. Reads from an input CSV,
+reads lines and perform requests using workers (could use it to update resources).
+Creates an output CSV.
+You can set the amount of go routines.
+
+The input.csv must be like this:
+
+resource_id
+14806111
+14807112
+*/
+
 type Record struct {
 	ResourceID           string
 	UpdateSuccess        bool
