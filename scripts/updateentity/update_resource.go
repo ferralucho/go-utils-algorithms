@@ -18,20 +18,20 @@ import (
 )
 
 type Record struct {
-	CreditLineId              string
-	RestructureSuccess        bool
-	RestructureDescription    string
-	RestructureStatusResponse int
+	ResourceID           string
+	UpdateSuccess        bool
+	UpdateDescription    string
+	UpdateStatusResponse int
 }
 
 var cName string
-var furyToken string
+var token string
 
-func restructureCreditLine(record *Record) error {
-	record.RestructureDescription = fmt.Sprintf("Executing update %s", record.CreditLineId)
+func updateResource(record *Record) error {
+	record.UpdateDescription = fmt.Sprintf("Executing update %s", record.ResourceID)
 
 	client := &http.Client{}
-	url := fmt.Sprintf("https://%s/credits/update/%s", cName, record.CreditLineId)
+	url := fmt.Sprintf("https://%s/credits/resource/%s", cName, record.ResourceID)
 
 	bodyMap := make(map[string]interface{})
 
@@ -39,26 +39,26 @@ func restructureCreditLine(record *Record) error {
 	req, _ := http.NewRequest(http.MethodPut, url, bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("X-Caller-Scopes", "admin")
-	req.Header.Set("x-auth-token", furyToken)
+	req.Header.Set("x-auth-token", token)
 
 	resp, err := client.Do(req)
 	if err != nil {
 		fmt.Println("Update error - ", url)
-		record.RestructureDescription = fmt.Sprintf("Update error - %s", url)
+		record.UpdateDescription = fmt.Sprintf("Update error - %s", url)
 
 		return err
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode == 200 {
-		record.RestructureSuccess = true
-		record.RestructureDescription = fmt.Sprintf("Update credit line Success - %d - %s", resp.StatusCode, url)
+		record.UpdateSuccess = true
+		record.UpdateDescription = fmt.Sprintf("Update credit line Success - %d - %s", resp.StatusCode, url)
 
 	} else {
 		bodyBytes, _ := ioutil.ReadAll(resp.Body)
-		record.RestructureDescription = fmt.Sprintf("Update credit line Error - %d - %s - %s", resp.StatusCode, url, string(bodyBytes))
+		record.UpdateDescription = fmt.Sprintf("Update credit line Error - %d - %s - %s", resp.StatusCode, url, string(bodyBytes))
 	}
-	record.RestructureStatusResponse = resp.StatusCode
+	record.UpdateStatusResponse = resp.StatusCode
 
 	return nil
 }
@@ -70,13 +70,13 @@ func worker(id int, records <-chan *Record, results chan<- *Record, group *sync.
 		group.Done()
 	}()
 	for record := range records {
-		fmt.Println("worker", id, "processing record ", record.CreditLineId)
-		err := restructureCreditLine(record)
+		fmt.Println("worker", id, "processing record ", record.ResourceID)
+		err := updateResource(record)
 		if err != nil {
-			fmt.Println("worker", id, "error on record:", record.CreditLineId)
+			fmt.Println("worker", id, "error on record:", record.ResourceID)
 			fmt.Println(err)
 		}
-		fmt.Println("worker", id, "finished record", record.CreditLineId)
+		fmt.Println("worker", id, "finished record", record.ResourceID)
 		results <- record
 	}
 	fmt.Println("worker", id, "done")
@@ -93,7 +93,7 @@ func parallelRead(reader *csv.Reader, records chan *Record, results chan *Record
 		}
 
 		record := Record{
-			CreditLineId: line[0],
+			ResourceID: line[0],
 		}
 
 		records <- &record
@@ -114,7 +114,7 @@ func main() {
 	flag.Parse()
 
 	cName = *url_flag
-	furyToken = *token_flag
+	token = *token_flag
 
 	fmt.Println(*inputPtr)
 	fmt.Println(*hasHeaderPtr)
@@ -144,7 +144,7 @@ func main() {
 			log.Fatal("Error reading header")
 			return
 		}
-		header := []string{"CreditLineId", "RestructureSuccess", "RestructureStatusResponse", "RestructureDescription"}
+		header := []string{"ResourceID", "UpdateSuccess", "UpdateStatusResponse", "UpdateDescription"}
 		err = writer.Write(header)
 		if err != nil {
 			log.Fatal("Error writting header")
@@ -176,16 +176,16 @@ func main() {
 	for record := range results {
 		count++
 
-		err = writer.Write([]string{record.CreditLineId, strconv.FormatBool(record.RestructureSuccess), strconv.Itoa(record.RestructureStatusResponse), record.RestructureDescription})
+		err = writer.Write([]string{record.ResourceID, strconv.FormatBool(record.UpdateSuccess), strconv.Itoa(record.UpdateStatusResponse), record.UpdateDescription})
 		if err != nil {
-			fmt.Println(fmt.Sprintf("Error writting record: %s", record.CreditLineId))
+			fmt.Println(fmt.Sprintf("Error writting record: %s", record.ResourceID))
 		}
-		fmt.Println(fmt.Sprintf("Wrote record: %s", record.CreditLineId))
+		fmt.Println(fmt.Sprintf("Wrote record: %s", record.ResourceID))
 		if count%100 == 0 {
 			writer.Flush()
 		}
 
-		if record.RestructureSuccess {
+		if record.UpdateSuccess {
 			successCounter++
 		} else {
 			failCounter++

@@ -18,17 +18,17 @@ import (
 )
 
 type Record struct {
-	LoanId                    string
-	RestructureSuccess        bool
-	RestructureDescription    string
-	RestructureStatusResponse int
+	LoanId               string
+	UpdateSuccess        bool
+	UpdateDescription    string
+	UpdateStatusResponse int
 }
 
-var cName string //write-java-beta_credits-api.furyapps.io
-var furyToken string
+var cName string
+var token string
 
 func restructureCreditLine(record *Record) error {
-	record.RestructureDescription = fmt.Sprintf("Executing restructure ownership loan in Core %s", record.LoanId)
+	record.UpdateDescription = fmt.Sprintf("Executing restructure ownership loan in Core %s", record.LoanId)
 
 	client := &http.Client{}
 	url := fmt.Sprintf("https://%s/credits/loans/owner/%s", cName, record.LoanId)
@@ -39,26 +39,26 @@ func restructureCreditLine(record *Record) error {
 	req, _ := http.NewRequest(http.MethodPut, url, bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("X-Caller-Scopes", "admin")
-	req.Header.Set("x-auth-token", furyToken)
+	req.Header.Set("x-auth-token", token)
 
 	resp, err := client.Do(req)
 	if err != nil {
 		fmt.Println("Update error - ", url)
-		record.RestructureDescription = fmt.Sprintf("Update error - %s", url)
+		record.UpdateDescription = fmt.Sprintf("Update error - %s", url)
 
 		return err
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode == 200 {
-		record.RestructureSuccess = true
-		record.RestructureDescription = fmt.Sprintf("Update restructure loan ownership Success - %d - %s", resp.StatusCode, url)
+		record.UpdateSuccess = true
+		record.UpdateDescription = fmt.Sprintf("Update restructure loan ownership Success - %d - %s", resp.StatusCode, url)
 
 	} else {
 		bodyBytes, _ := ioutil.ReadAll(resp.Body)
-		record.RestructureDescription = fmt.Sprintf("Update restructure loan ownership Error - %d - %s - %s", resp.StatusCode, url, string(bodyBytes))
+		record.UpdateDescription = fmt.Sprintf("Update restructure loan ownership Error - %d - %s - %s", resp.StatusCode, url, string(bodyBytes))
 	}
-	record.RestructureStatusResponse = resp.StatusCode
+	record.UpdateStatusResponse = resp.StatusCode
 
 	return nil
 }
@@ -114,7 +114,7 @@ func main() {
 	flag.Parse()
 
 	cName = *url_flag
-	furyToken = *token_flag
+	token = *token_flag
 
 	fmt.Println(*inputPtr)
 	fmt.Println(*hasHeaderPtr)
@@ -146,7 +146,7 @@ func main() {
 			log.Fatal("Error reading header")
 			return
 		}
-		header := []string{"LoanId", "RestructureSuccess", "RestructureStatusResponse", "RestructureDescription"}
+		header := []string{"LoanId", "UpdateSuccess", "UpdateStatusResponse", "UpdateDescription"}
 		err = writer.Write(header)
 		if err != nil {
 			log.Fatal("Error writting header")
@@ -180,7 +180,7 @@ func main() {
 	for record := range results {
 		count++
 
-		err = writer.Write([]string{record.LoanId, strconv.FormatBool(record.RestructureSuccess), strconv.Itoa(record.RestructureStatusResponse), record.RestructureDescription})
+		err = writer.Write([]string{record.LoanId, strconv.FormatBool(record.UpdateSuccess), strconv.Itoa(record.UpdateStatusResponse), record.UpdateDescription})
 		if err != nil {
 			fmt.Println(fmt.Sprintf("Error writting record: %s", record.LoanId))
 		}
@@ -189,7 +189,7 @@ func main() {
 			writer.Flush()
 		}
 
-		if record.RestructureSuccess {
+		if record.UpdateSuccess {
 			successCounter++
 		} else {
 			failCounter++
