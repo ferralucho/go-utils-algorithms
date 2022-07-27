@@ -1,6 +1,9 @@
 package main
 
-import "testing"
+import (
+	"testing"
+	"unicode/utf8"
+)
 
 func TestReverse(t *testing.T) {
 	testCases := []struct{ in, want string }{
@@ -13,6 +16,10 @@ func TestReverse(t *testing.T) {
 		rev := Reverse(tc.in)
 		if rev != tc.want {
 			t.Errorf("Reverse %q: want %q", rev, tc.want)
+		}
+
+		if !utf8.ValidString(rev) {
+			t.Errorf("Reverse produced invalid UTF-8 string %q", rev)
 		}
 	}
 }
