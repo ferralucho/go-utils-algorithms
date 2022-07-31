@@ -42,6 +42,7 @@ func sum(toSum []int) int {
 	return sum
 }
 
+/*
 func main() {
 	var a = []int{1, 8}
 	var b = []int{2, 7}
@@ -52,3 +53,4 @@ func main() {
 	var d = []int{1, 5}
 	println(SlowSwapArraysSum(c, d) == true)
 }
+*/
