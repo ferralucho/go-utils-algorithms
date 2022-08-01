@@ -25,4 +25,5 @@ func main() {
 		fmt.Println(sum)
 		quitchannel <- 0
 	}()
+	SumOfSquares(mychannel, quitchannel)
 }
