@@ -79,9 +79,10 @@ func MergeReaders(r1, r2 io.Reader) (io.Reader, error) {
 	}
 	return strings.NewReader(result), nil
 }
+
 func main() {
 	reader := bufio.NewReaderSize(os.Stdin, 16*1024*1024)
-	stdout, err := os.Create(os.Getenv("OUTPUT_PATH"))
+	stdout, err := os.Create("./out_merge.txt")
 	checkError(err)
 	defer stdout.Close()
 
