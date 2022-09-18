@@ -4,16 +4,19 @@ There is an array of strings. Write a function that will:
 2. send nil to errChannel as a signal to the main function that it can begin sending data
 3. accept strings from an array converted to byte arrays passed from the main function
 4. write the strings to the file
+
 This should be done using a minimal amount of memory allocations.
 The name of the file to write is stored in a global variable filename.
 
 Example
+
 inputArray = ["Lorem ", "ipsum ", "dolor ", "sit ", "amet"]
 The resulting file should contain "Lorem ipsum dolor sit amet".
 
 Function Description
 
 Complete the function writeToFile in the editor below. The function must be void.
+
 writeToFile has the following parameters:
 bytesChannel chan []byte: a channel for receiving bytes from the main function for writing them to the
 file.
@@ -52,6 +55,7 @@ ipsum
 dolor
 sit
 amet
+
 Sample Output
 Lorem ipsum dolor sit amet
 
@@ -61,23 +65,84 @@ them from this file where they get joined.
 
 */
 
+package main
+
+import (
+	"bufio"
+	"fmt"
+	"io"
+	"os"
+	"strconv"
+	"strings"
+)
+
 func writeToFile(bytesChannel chan []byte, doneChannel chan bool, errChannel chan error) {
-	file, err := os.Create(filename)
+	file, err := os.Create("writing_file.txt")
 	errChannel <- err
 	if err != nil {
 		return
 	}
 	for {
 		select {
-		case <-doneChannel:
-			return
 		case b := <-bytesChannel:
+
+			fmt.Printf("%T, %v\n", b, b)
 			_, err := file.Write(b)
-			errChannel <- err
+			fmt.Printf("Sender: Write %s value", b)
+
 			if err != nil {
-				return
+				errChannel <- err
 			}
+		case l := <-doneChannel:
+			fmt.Printf("Sender: Done %s value\n", l)
+
 		}
 	}
 }
-	
+
+func main() {
+	//reader := bufio.NewReaderSize(os.Stdin, 16*1024*1024)
+	//sizeByteArr := readerLine(reader)
+	intSize, err := strconv.Atoi("2")
+
+	if err == nil {
+		fmt.Printf("%T, %v\n", intSize, intSize)
+	}
+
+	bytesChannel := make(chan []byte, intSize)
+	errChannel := make(chan error)
+	doneChannel := make(chan bool, 1)
+
+	defer close(bytesChannel)
+	defer close(errChannel)
+	defer close(doneChannel)
+
+	go func() {
+
+		for {
+			select {
+			case l := <-errChannel:
+				fmt.Printf("Sender: Error %s value\n", l)
+
+			}
+		}
+
+	}()
+
+	for i := 0; i < intSize; i++ {
+		in := "primero" + strconv.Itoa(i)
+		bytesChannel <- []byte(in + "\n")
+	}
+
+	writeToFile(bytesChannel, doneChannel, errChannel)
+	doneChannel <- true
+}
+
+func readerLine(reader *bufio.Reader) string {
+	str, _, err := reader.ReadLine()
+
+	if err == io.EOF {
+		return ""
+	}
+	return strings.TrimRight(string(str), "\r\n")
+}
