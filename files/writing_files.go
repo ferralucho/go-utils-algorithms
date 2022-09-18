@@ -77,6 +77,8 @@ import (
 )
 
 func writeToFile(bytesChannel chan []byte, doneChannel chan bool, errChannel chan error) {
+	defer close(bytesChannel)
+
 	file, err := os.Create("writing_file.txt")
 	errChannel <- err
 	if err != nil {
@@ -84,7 +86,13 @@ func writeToFile(bytesChannel chan []byte, doneChannel chan bool, errChannel cha
 	}
 	for {
 		select {
-		case b := <-bytesChannel:
+		case b, ok := <-bytesChannel:
+
+			if !ok {
+				fmt.Printf("Sender: Bytes Channel closed\n")
+
+				return
+			}
 
 			fmt.Printf("%T, %v\n", b, b)
 			_, err := file.Write(b)
@@ -93,10 +101,14 @@ func writeToFile(bytesChannel chan []byte, doneChannel chan bool, errChannel cha
 			if err != nil {
 				errChannel <- err
 			}
+
 		case l := <-doneChannel:
 			fmt.Printf("Sender: Done %s value\n", l)
-
+			return
+		default:
+			return
 		}
+
 	}
 }
 
@@ -113,24 +125,18 @@ func main() {
 	errChannel := make(chan error)
 	doneChannel := make(chan bool, 1)
 
-	defer close(bytesChannel)
-	defer close(errChannel)
 	defer close(doneChannel)
+	defer close(errChannel)
 
 	go func() {
-
-		for {
-			select {
-			case l := <-errChannel:
-				fmt.Printf("Sender: Error %s value\n", l)
-
-			}
+		for l := range errChannel {
+			fmt.Printf("Sender: Error %s value\n", l)
+			return
 		}
-
 	}()
 
 	for i := 0; i < intSize; i++ {
-		in := "primero" + strconv.Itoa(i)
+		in := "file_" + strconv.Itoa(i)
 		bytesChannel <- []byte(in + "\n")
 	}
 
