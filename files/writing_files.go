@@ -64,91 +64,126 @@ Explanation
 them from this file where they get joined.
 
 */
-
 package main
 
 import (
 	"bufio"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"os"
+	"runtime"
 	"strconv"
 	"strings"
 )
 
-func writeToFile(bytesChannel chan []byte, doneChannel chan bool, errChannel chan error) {
-	defer close(bytesChannel)
+/*
+ * Complete the 'writeToFile' function below.
+ *
+ * The function accepts following parameters:
+ *  1. chan []byte bytesChannel
+ *  2. chan bool doneChannel
+ *  3. chan error errChannel
+ */
 
-	file, err := os.Create("writing_file.txt")
-	errChannel <- err
+func writeToFile(bytesChannel chan []byte, doneChannel chan bool, errChannel chan error) {
+	file, err := os.Create(filename)
+	errChannel <- nil
 	if err != nil {
 		return
 	}
+
 	for {
 		select {
-		case b, ok := <-bytesChannel:
-
+		case val, ok := <-bytesChannel:
 			if !ok {
-				fmt.Printf("Sender: Bytes Channel closed\n")
-
+				fmt.Printf("Bytes channel closed")
 				return
 			}
-
-			fmt.Printf("%T, %v\n", b, b)
-			_, err := file.Write(b)
-			fmt.Printf("Sender: Write %s value", b)
+			fmt.Printf("%v\n", val)
+			_, err := file.Write(val)
 
 			if err != nil {
 				errChannel <- err
 			}
-
-		case l := <-doneChannel:
-			fmt.Printf("Sender: Done %s value\n", l)
+			errChannel <- nil
+		case d := <-doneChannel:
+			fmt.Printf("Done %t value\n", d)
 			return
-		default:
-			return
+		case e := <-errChannel:
+			fmt.Printf("Error %t value\n", e)
 		}
-
 	}
 }
 
 func main() {
-	//reader := bufio.NewReaderSize(os.Stdin, 16*1024*1024)
-	//sizeByteArr := readerLine(reader)
-	intSize, err := strconv.Atoi("2")
+	reader := bufio.NewReaderSize(os.Stdin, 16*1024*1024)
 
-	if err == nil {
-		fmt.Printf("%T, %v\n", intSize, intSize)
+	stdout, err := os.Create(os.Getenv("OUTPUT_PATH"))
+	checkError(err)
+
+	defer stdout.Close()
+
+	writer := bufio.NewWriterSize(stdout, 16*1024*1024)
+
+	inputArrayCount, err := strconv.ParseInt(strings.TrimSpace(readLine(reader)), 10, 64)
+	checkError(err)
+
+	var inputArray []string
+
+	for i := 0; i < int(inputArrayCount); i++ {
+		inputArrayItem := readLine(reader)
+		inputArray = append(inputArray, inputArrayItem)
 	}
 
-	bytesChannel := make(chan []byte, intSize)
-	errChannel := make(chan error)
-	doneChannel := make(chan bool, 1)
-
-	defer close(doneChannel)
-	defer close(errChannel)
-
-	go func() {
-		for l := range errChannel {
-			fmt.Printf("Sender: Error %s value\n", l)
-			return
+	bytesChannel, doneChannel, errChannel := make(chan []byte), make(chan bool), make(chan error)
+	var ms runtime.MemStats
+	runtime.ReadMemStats(&ms)
+	allocBefore := ms.Alloc
+	go writeToFile(bytesChannel, doneChannel, errChannel)
+	err = <-errChannel
+	if err != nil {
+		panic(err)
+	}
+	for _, b := range inputArray {
+		bytesChannel <- []byte(b)
+		err := <-errChannel
+		if err != nil {
+			fmt.Fprintf(writer, "Critical error: %s", err.Error())
+			break
 		}
-	}()
-
-	for i := 0; i < intSize; i++ {
-		in := "file_" + strconv.Itoa(i)
-		bytesChannel <- []byte(in + "\n")
+	}
+	doneChannel <- true
+	runtime.ReadMemStats(&ms)
+	allocAfter := ms.Alloc
+	fmt.Printf("Total memory allocated: %d bytes\n", allocAfter-allocBefore)
+	if allocAfter-allocBefore > 10000 {
+		fmt.Fprintf(writer, "Too much memory allocated, maximum 10000 bytes needed")
+	} else {
+		b, err := ioutil.ReadFile(filename)
+		if err == nil {
+			fmt.Fprintf(writer, "%s\n", string(b))
+		} else {
+			fmt.Fprintf(writer, "Critical error: %s", err.Error())
+		}
 	}
 
-	writeToFile(bytesChannel, doneChannel, errChannel)
-	doneChannel <- true
+	writer.Flush()
 }
 
-func readerLine(reader *bufio.Reader) string {
-	str, _, err := reader.ReadLine()
+const filename = "output"
 
+func readLine(reader *bufio.Reader) string {
+	str, _, err := reader.ReadLine()
 	if err == io.EOF {
 		return ""
 	}
+
 	return strings.TrimRight(string(str), "\r\n")
+}
+
+func checkError(err error) {
+	if err != nil {
+		panic(err)
+	}
 }
