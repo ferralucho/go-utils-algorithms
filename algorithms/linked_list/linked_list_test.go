@@ -77,3 +77,13 @@ func TestFindByNonExistentValue(t *testing.T) {
 		t.Errorf("expected %v, got %v", true, res)
 	}
 }
+
+func TestInverseList(t *testing.T) {
+	list := createSinglyLinkedList([]int{1, 2, 6, 3, 4, 5})
+	expected := createSinglyLinkedList([]int{5, 4, 3, 2, 1})
+
+	list.Invert()
+	if list.head.val != expected.head.val {
+		t.Errorf("expected %v, got %v", expected.head.val, list.head.val)
+	}
+}
