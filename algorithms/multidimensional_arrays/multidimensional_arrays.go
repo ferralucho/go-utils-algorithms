@@ -19,7 +19,6 @@
  */
 
 // To execute Go code, please declare a func main() in a package "main"
-
 package main
 
 import (
@@ -39,37 +38,29 @@ func main() {
 
 func MergeIntervals(intervals [][]int) [][]int {
 	sort.Slice(intervals, func(i, j int) bool {
-		return i < j
+		return intervals[i][0] < intervals[j][0]
 	})
 
-	var newIntervals [][]int
-	for i := 0; i < len(intervals); i++ {
-		lower := intervals[i][0]
-		upper := intervals[i][1]
-		if len(intervals)-i-1 > 0 {
-			next := intervals[i+1]
-			if upper >= next[0] {
-				element := []int{
-					lower, next[1],
-				}
+	merged := [][]int{}
+	start := intervals[0][0]
+	end := intervals[0][1]
 
-				newIntervals = append(newIntervals, element)
-				i += 1
-			} else {
-				newIntervals = addElement(lower, upper, newIntervals)
+	for i := 1; i < len(intervals); i++ {
+		currStart := intervals[i][0]
+		currEnd := intervals[i][1]
+
+		if currStart <= end {
+			if currEnd > end {
+				end = currEnd
 			}
 		} else {
-			newIntervals = addElement(lower, upper, newIntervals)
+			merged = append(merged, []int{start, end})
+			start = currStart
+			end = currEnd
 		}
 	}
 
-	return newIntervals
-}
+	merged = append(merged, []int{start, end})
 
-func addElement(lower int, upper int, newIntervals [][]int) [][]int {
-	element := []int{
-		lower, upper,
-	}
-	newIntervals = append(newIntervals, element)
-	return newIntervals
+	return merged
 }
