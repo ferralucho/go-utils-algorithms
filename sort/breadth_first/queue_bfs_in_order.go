@@ -2,7 +2,6 @@ package main
 
 import "fmt"
 
-// TreeNode represents a node in the binary tree
 type TreeNode struct {
 	Val   int
 	Left  *TreeNode
@@ -37,7 +36,6 @@ func InOrderTraversal(root *TreeNode) []int {
 }
 
 func main() {
-	// Create a sample binary tree
 	root := &TreeNode{
 		Val: 1,
 		Left: &TreeNode{
