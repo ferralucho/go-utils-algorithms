@@ -6,13 +6,15 @@
 */
 package main
 
+import "fmt"
+
 func searchProductsBinary(productIDs []int, encontrar int) (int, int) {
 	var i int
 	var la = len(productIDs) - 1
 	var iter = 0
 
 	for i <= la {
-		middle := (la-1)/2 + 1
+		middle := i + (la-i)/2
 		if productIDs[middle] == encontrar {
 			iter += 1
 			return middle, iter
@@ -23,7 +25,16 @@ func searchProductsBinary(productIDs []int, encontrar int) (int, int) {
 		} else {
 			i = middle + 1
 		}
+		iter += 1
 	}
 
 	return -1, -1
+}
+
+func main() {
+	productIds := []int{2, 5, 7, 9, 23, 28, 36, 39, 56, 68, 75, 76, 77, 88, 89, 99}
+
+	ind, it := searchProductsBinary(productIds, 39)
+	fmt.Println("index", ind)
+	fmt.Println("iteration", it)
 }
