@@ -6,7 +6,6 @@ import (
 )
 
 func TestInOrderTraversal(t *testing.T) {
-	// Create a sample binary tree
 	root := &TreeNode{
 		Val: 1,
 		Left: &TreeNode{
@@ -23,13 +22,10 @@ func TestInOrderTraversal(t *testing.T) {
 		},
 	}
 
-	// Perform in-order traversal and get the result
 	result := InOrderTraversal(root)
 
-	// Define the expected result
 	expected := []int{4, 2, 5, 1, 3}
 
-	// Compare the actual result with the expected result
 	if !reflect.DeepEqual(result, expected) {
 		t.Errorf("Expected %v, but got %v", expected, result)
 	}

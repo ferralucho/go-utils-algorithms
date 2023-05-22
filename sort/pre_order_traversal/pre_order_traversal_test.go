@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestInorderTraversal(t *testing.T) {
+func TestPreOrderTraversal(t *testing.T) {
 	root := &TreeNode{
 		Val: 1,
 		Left: &TreeNode{
@@ -22,9 +22,8 @@ func TestInorderTraversal(t *testing.T) {
 		},
 	}
 
-	expected := []int{4, 2, 5, 1, 3}
-
-	result := InOrderTraversal(root)
+	result := PreOrderTraversal(root)
+	expected := []int{1, 2, 4, 5, 3}
 
 	if !reflect.DeepEqual(result, expected) {
 		t.Errorf("Expected %v, but got %v", expected, result)

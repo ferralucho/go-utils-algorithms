@@ -17,18 +17,15 @@ func InOrderTraversal(root *TreeNode) []int {
 	current := root
 
 	for current != nil || len(stack) > 0 {
-		//Traverse to the left most node
 		for current != nil {
 			stack = append(stack, current)
 			current = current.Left
 		}
 
-		//Process the current node
 		current = stack[len(stack)-1]
 		stack = stack[:len(stack)-1]
 		result = append(result, current.Val)
 
-		//Traverse to the right tree
 		current = current.Right
 	}
 
