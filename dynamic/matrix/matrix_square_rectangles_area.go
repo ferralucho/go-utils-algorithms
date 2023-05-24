@@ -1,5 +1,7 @@
 package main
 
+import "fmt"
+
 /*
 Given a rows x cols binary matrix filled with 0's and 1's, find the largest rectangle containing only 1's and return its area.
 
@@ -43,6 +45,79 @@ matrix[i][j] is '0' or '1'.
 
 */
 
-func MaxRectangleSubmatrixOf1(input [][]int) {
+func maxHistogram(input []int) int {
+	stack := make([]int, 0)
+	maxArea := 0
+	area := 0
+	i := 0
 
+	for i < len(input) {
+		if len(stack) == 0 || input[stack[len(stack)-1]] <= input[i] {
+			stack = append(stack, i)
+			i++
+		} else {
+			top := stack[len(stack)-1]
+			stack = stack[:len(stack)-1]
+
+			if len(stack) == 0 {
+				area = input[top] * i
+			} else {
+				area = input[top] * (i - stack[len(stack)-1] - 1)
+			}
+
+			if area > maxArea {
+				maxArea = area
+			}
+		}
+	}
+
+	for len(stack) > 0 {
+		top := stack[len(stack)-1]
+		stack = stack[:len(stack)-1]
+
+		if len(stack) == 0 {
+			area = input[top] * i
+		} else {
+			area = input[top] * (i - stack[len(stack)-1] - 1)
+		}
+
+		if area > maxArea {
+			maxArea = area
+		}
+	}
+
+	return maxArea
+}
+
+func maximumRectangularSubmatrixOf1s(input [][]int) int {
+	temp := make([]int, len(input[0]))
+	maxArea := 0
+	area := 0
+	for i := 0; i < len(input); i++ {
+		for j := 0; j < len(temp); j++ {
+			if input[i][j] == 0 {
+				temp[j] = 0
+			} else {
+				temp[j] += input[i][j]
+			}
+		}
+		area = maxHistogram(temp)
+		if area > maxArea {
+			maxArea = area
+		}
+	}
+	return maxArea
+}
+
+func main() {
+	input := [][]int{
+		{1, 1, 1, 0},
+		{1, 1, 1, 1},
+		{0, 1, 1, 0},
+		{0, 1, 1, 1},
+		{1, 0, 0, 1},
+		{1, 1, 1, 1},
+	}
+	maxRectangle := maximumRectangularSubmatrixOf1s(input)
+	fmt.Println("Max rectangle is of size", maxRectangle)
 }
