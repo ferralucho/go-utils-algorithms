@@ -21,6 +21,46 @@ import (
  * http://www.geeksforgeeks.org/dynamic-programming-set-3-longest-increasing-subsequence/
  */
 
+func LongestSubSequence(arr []int) int {
+	T := make([]int, len(arr))
+	actualSolution := make([]int, len(arr))
+
+	for i := 0; i < len(arr); i++ {
+		T[i] = 1
+		actualSolution[i] = i
+	}
+
+	for i := 1; i < len(arr); i++ {
+		for j := 0; j < i; j++ {
+			if arr[i] > arr[j] {
+				if T[j]+1 > T[i] {
+					T[i] = T[j] + 1
+					actualSolution[i] = j
+				}
+			}
+		}
+	}
+
+	maxIndex := 0
+	for i := 0; i < len(T); i++ {
+		if T[i] > T[maxIndex] {
+			maxIndex = i
+		}
+	}
+
+	t := maxIndex
+	newT := maxIndex
+	for t != newT {
+		t = newT
+		fmt.Printf("%d ", arr[t])
+		newT = actualSolution[t]
+	}
+	fmt.Println()
+
+	return T[maxIndex]
+
+}
+
 func LongestSubSeqRecursive(arr []int) int {
 	maxLen := 0
 	for i := 0; i < len(arr); i++ {
@@ -46,6 +86,9 @@ func longestSubSeqRecursive(arr []int, pos, lastNum int) int {
 
 func main() {
 	arr := []int{23, 10, 22, 5, 33, 8, 9, 21, 50, 41, 60, 80, 99, 22, 23, 24, 25, 26, 27}
-	res := LongestSubSeqRecursive(arr)
-	fmt.Println("result:", res)
+	resRec := LongestSubSeqRecursive(arr)
+	fmt.Println("result:", resRec)
+
+	resDyn := LongestSubSequence(arr)
+	fmt.Println("dynamic result:", resDyn)
 }
