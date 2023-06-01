@@ -49,9 +49,9 @@ import (
 
 func check(xs []int) bool {
 	x := strconv.Itoa(xs[1])
-	for i := 0; i < len(x); i++ {
+	for i := 0; i < len(x)-1; i++ {
 		for j := i + 1; j < len(x); j++ {
-			numStr := fmt.Sprintf("%s%s%s%s%s", x[0:i], x[j], x[i+1:j], x[i], x[j+1:])
+			numStr := x[:i] + string(x[j]) + x[i+1:j] + string(x[i]) + x[j+1:]
 			num, _ := strconv.Atoi(numStr)
 			if xs[0] < num && num < xs[2] {
 				return true
