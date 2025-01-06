@@ -30,6 +30,10 @@ func hasCycle(head *ListNode) bool {
 }
 
 func findMiddle(head *ListNode) *ListNode {
+	if hasCycle(head) {
+		return head
+	}
+
 	slow, fast := head, head
 
 	for fast != nil && fast.Next != nil {
@@ -47,11 +51,14 @@ func main() {
 	head.Next.Next = &ListNode{Val: 3}
 	head.Next.Next.Next = &ListNode{Val: 4}
 	// Create a cycle
-	head.Next.Next.Next.Next = head.Next
+	// head.Next.Next.Next.Next = head.Next
 
 	if hasCycle(head) {
 		fmt.Println("Cycle detected in the linked list")
 	} else {
 		fmt.Println("No cycle detected in the linked list")
 	}
+
+	middle := findMiddle(head)
+	fmt.Print("middle: ", middle.Val)
 }
