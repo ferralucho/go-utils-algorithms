@@ -1,0 +1,35 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug Current File",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${file}",
+            "cwd": "${workspaceFolder}",
+            "env": {},
+            "args": []
+        },
+        {
+            "name": "Debug Package",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/base-algo-interview/bfs-combinations",
+            "cwd": "${workspaceFolder}",
+            "env": {},
+            "args": []
+        },
+        {
+            "name": "Debug Specific File",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "/home/luciano/repositories/go-utilities/go-utils-algorithms/base-algo-interview/bfs-combinations/main.go",
+            "cwd": "${workspaceFolder}",
+            "env": {},
+            "args": []
+        }
+    ]
+}
